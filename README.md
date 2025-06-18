@@ -1,1 +1,0 @@
-# Reddy-Real-estate-calculator.
