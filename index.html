@@ -9,7 +9,7 @@
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
   <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-6xl">
     <h1 class="text-3xl font-bold mb-4 text-center text-indigo-700">🏡 Real Estate & Apartment Cost Calculator</h1>
-    <p class="text-center text-gray-600 mb-6">Enter any value below to auto-calculate the rest. See real-time price comparisons and planning insights.</p>
+    <p class="text-center text-gray-600 mb-6">Enter values to calculate pricing, conversion insights, and venture planning comparisons.</p>
 
     <form onsubmit="handleSubmit(event)">
       <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -42,8 +42,9 @@
             <label class="block text-sm font-semibold text-gray-700">Width (ft)</label>
             <input type="number" step="any" id="land-width" class="mt-1 p-3 w-full border rounded" placeholder="e.g. 40" />
           </div>
-          <div class="sm:col-span-2 lg:col-span-2 flex items-end">
+          <div class="sm:col-span-2 lg:col-span-2 flex items-end gap-4">
             <button type="button" onclick="calculateLandArea()" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 w-full">Calculate Area</button>
+            <button type="button" onclick="resetForm()" class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 w-full">Reset</button>
           </div>
         </div>
         <div id="land-result" class="text-sm text-gray-700 font-medium"></div>
@@ -68,28 +69,11 @@
             <label class="block text-sm font-semibold text-gray-700">Corner Unit Charge (₹)</label>
             <input type="number" id="corner-charge" class="mt-1 p-3 w-full border rounded" placeholder="e.g. 200000" />
           </div>
-        </div>
-      </div>
-
-      <div class="border-t pt-6 mt-6">
-        <h2 class="text-xl font-semibold text-indigo-600 mb-2">📐 HMDA Venture Planning per Acre</h2>
-        <p class="text-gray-600 text-sm mb-4">Approximate land split in a standard HMDA-approved layout.</p>
-        <div class="grid sm:grid-cols-3 gap-4">
-          <div class="p-4 bg-gray-100 rounded">
-            <h3 class="text-sm font-medium text-gray-700">Roads (~30%)</h3>
-            <p class="text-lg font-semibold text-gray-800">≈ 13,068 sq.ft</p>
-          </div>
-          <div class="p-4 bg-gray-100 rounded">
-            <h3 class="text-sm font-medium text-gray-700">Amenities (~10%)</h3>
-            <p class="text-lg font-semibold text-gray-800">≈ 4,356 sq.ft</p>
-          </div>
-          <div class="p-4 bg-gray-100 rounded">
-            <h3 class="text-sm font-medium text-gray-700">Sellable Plots (~60%)</h3>
-            <p class="text-lg font-semibold text-green-700">≈ 26,136 sq.ft</p>
-            <p class="text-sm text-gray-600">e.g. ~13 plots of 200 sq. yards or ~16 plots of 150 sq. yards</p>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700">Total Units</label>
+            <input type="number" id="apartment-units" class="mt-1 p-3 w-full border rounded" placeholder="e.g. 120" />
           </div>
         </div>
-        <p class="text-sm text-gray-500 mt-4">In an HMDA venture, 40% of land is allocated to infrastructure. Though less land is sold per acre, buyers benefit from roads, parks, and legal approval. Open land buyers may get more area but without such benefits.</p>
       </div>
 
       <div class="mt-6 text-center">
@@ -99,7 +83,6 @@
 
     <div id="result" class="text-center mt-6 text-lg font-semibold text-green-600"></div>
     <p class="text-xs text-gray-500 mt-6">Reference: 1 Acre = 43,560 sq.ft | 1 Gunta = 1,089 sq.ft | 1 Sq. Yard = 9 sq.ft</p>
-    <p class="text-xs text-gray-400 mt-2 text-center">Designed by Sai Kumar Reddy M</p>
   </div>
 
   <script>
@@ -126,10 +109,10 @@
         sqft = input / sqftPerAcre;
       }
 
-      document.getElementById('price-sqft').value = sqft.toFixed(2);
-      document.getElementById('price-yard').value = (sqft * sqftPerYard).toFixed(2);
-      document.getElementById('price-gunta').value = (sqft * sqftPerGunta).toFixed(2);
-      document.getElementById('price-acre').value = (sqft * sqftPerAcre).toFixed(2);
+      document.getElementById('price-sqft').value = Math.round(sqft);
+      document.getElementById('price-yard').value = Math.round(sqft * sqftPerYard);
+      document.getElementById('price-gunta').value = Math.round(sqft * sqftPerGunta);
+      document.getElementById('price-acre').value = Math.round(sqft * sqftPerAcre);
 
       setTimeout(() => { lastEdited = ''; }, 300);
     }
@@ -141,18 +124,27 @@
       const base = parseFloat(document.getElementById('apartment-base-price').value) || 0;
       const floor = parseFloat(document.getElementById('floor-rise').value) || 0;
       const corner = parseFloat(document.getElementById('corner-charge').value) || 0;
+      const units = parseFloat(document.getElementById('apartment-units').value) || 0;
 
-      let apartmentTotal = 0;
-      if (size > 0 && base > 0) {
-        apartmentTotal = (size * (base + floor)) + corner;
-      }
+      const length = parseFloat(document.getElementById('land-length').value) || 0;
+      const width = parseFloat(document.getElementById('land-width').value) || 0;
+      const areaSqft = length * width;
+      const areaSqyd = areaSqft / sqftPerYard;
 
       const resultBox = document.getElementById('result');
-      if (apartmentTotal > 0) {
-        resultBox.innerHTML = `🏢 Apartment Total Cost: ₹${apartmentTotal.toLocaleString()}`;
-      } else {
-        resultBox.innerHTML = `✅ Land Price Estimates Updated.`;
+      let output = '';
+
+      if (areaSqft > 0) {
+        output += `🧮 Land Area: ${Math.round(areaSqft)} Sq.Ft | ${Math.round(areaSqyd)} Sq.Yards<br/>`;
       }
+
+      if (size > 0 && base > 0) {
+        const apartmentTotal = (size * (base + floor)) + corner;
+        const grandTotal = apartmentTotal * units;
+        output += `🏢 Apartment Total Per Unit: ₹${Math.round(apartmentTotal).toLocaleString()}<br/>🏢 Total for ${units} Units: ₹${Math.round(grandTotal).toLocaleString()}`;
+      }
+
+      resultBox.innerHTML = output || '❌ Please enter values to calculate.';
     }
 
     function calculateLandArea() {
@@ -162,10 +154,16 @@
       const areaSqyd = areaSqft / sqftPerYard;
 
       if (!isNaN(areaSqft) && areaSqft > 0) {
-        document.getElementById('land-result').innerHTML = `Total Area: <strong>${areaSqft.toFixed(2)}</strong> Sq.Ft | <strong>${areaSqyd.toFixed(2)}</strong> Sq.Yards`;
+        document.getElementById('land-result').innerHTML = `Total Area: <strong>${Math.round(areaSqft)}</strong> Sq.Ft | <strong>${Math.round(areaSqyd)}</strong> Sq.Yards`;
       } else {
         document.getElementById('land-result').innerHTML = '';
       }
+    }
+
+    function resetForm() {
+      document.querySelector('form').reset();
+      document.getElementById('result').innerHTML = '';
+      document.getElementById('land-result').innerHTML = '';
     }
   </script>
 </body>
