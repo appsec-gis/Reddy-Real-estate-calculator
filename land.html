@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal Real Estate Price Converter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-2xl">
+    <h1 class="text-2xl font-bold mb-4 text-center">🏡 Real Estate Price Converter</h1>
+    <p class="text-center text-gray-600 mb-6">Enter price in any one unit, and see prices in all others</p>
+
+    <div class="grid grid-cols-1 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Price per Sq. Ft (₹)</label>
+        <input type="number" id="price-sqft" oninput="convertFrom('sqft')" class="mt-1 p-2 w-full border rounded" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Price per Sq. Yard (₹)</label>
+        <input type="number" id="price-yard" oninput="convertFrom('yard')" class="mt-1 p-2 w-full border rounded" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Price per Gunta (₹)</label>
+        <input type="number" id="price-gunta" oninput="convertFrom('gunta')" class="mt-1 p-2 w-full border rounded" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Price per Acre (₹)</label>
+        <input type="number" id="price-acre" oninput="convertFrom('acre')" class="mt-1 p-2 w-full border rounded" />
+      </div>
+    </div>
+
+    <p class="text-sm text-gray-500 mt-6">Note: Conversions based on standard: 1 acre = 43560 sq.ft, 1 gunta = 1089 sq.ft, 1 sq yard = 9 sq.ft.</p>
+  </div>
+
+  <script>
+    function convertFrom(source) {
+      let sqft = 0;
+
+      if (source === 'sqft') {
+        sqft = parseFloat(document.getElementById('price-sqft').value) || 0;
+      } else if (source === 'yard') {
+        let yard = parseFloat(document.getElementById('price-yard').value) || 0;
+        sqft = yard / (1 / 9);
+      } else if (source === 'gunta') {
+        let gunta = parseFloat(document.getElementById('price-gunta').value) || 0;
+        sqft = gunta / (1 / 1089);
+      } else if (source === 'acre') {
+        let acre = parseFloat(document.getElementById('price-acre').value) || 0;
+        sqft = acre / (1 / 43560);
+      }
+
+      // Now update all fields
+      if (source !== 'sqft') document.getElementById('price-sqft').value = sqft.toFixed(2);
+      document.getElementById('price-yard').value = (sqft * 9).toFixed(2);
+      document.getElementById('price-gunta').value = (sqft * 1089).toFixed(2);
+      document.getElementById('price-acre').value = (sqft * 43560).toFixed(2);
+    }
+  </script>
+</body>
+</html>
